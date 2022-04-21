@@ -40,6 +40,14 @@ div.row > div:hover {
   background-color: #fff;
 }
 
+.colors {
+  margin: 20px 0px;
+}
+
+div.selected {
+  border: 1px solid rgb(0, 255, 76) !important;
+  padding: 5px !important;
+}
 
 .color-0 {
   background-color: #f6e6e8;
