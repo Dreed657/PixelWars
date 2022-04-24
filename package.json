@@ -1,0 +1,24 @@
+{
+  "name": "pixelwars",
+  "version": "1.0.0",
+  "description": "In the real r/place april 1 event, app uses short pulling of reddits cdn (hot-potato). Wanted to try to make a copy at the app with WebSockets.",
+  "main": "index.js",
+  "scripts": {
+    "install:client": "cd ./client-user && pnpm install",
+    "install:server": "cd ./server && pnpm install",
+    "install": "npm run install:server && npm run install:client",
+    "start:client": "cd ./client-user && npm run serve",
+    "start:server": "cd ./server && npm run start",
+    "start": "npm run start:client & npm run start:server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dreed657/PixelWars.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dreed657/PixelWars/issues"
+  },
+  "homepage": "https://github.com/Dreed657/PixelWars#readme"
+}

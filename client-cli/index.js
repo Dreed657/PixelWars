@@ -1,6 +1,6 @@
 import ws from 'ws';
 
-const serverAddress = 'ws://localhost:9999';
+const serverAddress = process.env.URL ?? 'ws://localhost:9999';
 
 var client = new ws(serverAddress);
 
