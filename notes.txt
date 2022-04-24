@@ -1,0 +1,45 @@
+Brainstorming:
+    General: 
+        - ?Aggragete statistics over saved plays
+        - ?Add queue between ws and rest for saving plays
+        - ?Batch processing of play saving
+        - ?Soft delete
+
+    Web Socket server:
+
+    
+    Rest:
+        - CRUD canvas
+        - Save snapshots of the canvas
+        - Save any play
+
+        canvas:
+            /getById/{id}
+            /getAll (paged?)
+            /create
+            /update/{id}
+            /delete/{id}
+
+            Schema:
+            {canvasId, size, createdAt}
+        
+        snapshots:
+            /getById/{id}
+            /getAll (paged?)
+            /create
+            /update/{id}
+            /delete/{id}
+
+            Schema:
+            {canvasId, createdAt, canvas: []}
+
+        plays:
+            /save 
+
+            Schema:
+            {canvasId, clientId, cellData: { x, y, color }}
+
+
+    Player simulator:
+
+
