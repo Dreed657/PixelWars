@@ -16,7 +16,7 @@ class GameService {
     }
 
     draw() {
-        console.log('Initial: ', this.canvas);
+        console.log('Initial : ', this.canvas);
     }
 
     updateCell(x, y, color) {

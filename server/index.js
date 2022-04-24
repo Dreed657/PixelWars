@@ -2,11 +2,11 @@ import { WebSocketServer } from 'ws';
 import { GameService } from './services/service.js';
 import shortid from 'shortid';
 
-const size = 15;
+const size = process.env.SIZE ?? 10;
 
 const service = new GameService(size);
 
-service.draw();
+// service.draw();
 
 const wss = new WebSocketServer({ port: 9999 });
 
@@ -45,6 +45,7 @@ wss.on('connection', function connection(ws) {
 });
 
 console.log('WS server started');
+console.log('Size: ', size);
 
 const init = (data) => {
     console.log('New client: ', data);

@@ -26,6 +26,8 @@ services:
     build:
       context: ./server
       dockerfile: ./Dockerfile
+    environment:
+      - "SIZE=5"
     ports:
       - "9999:9999"
     networks:
