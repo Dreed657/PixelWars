@@ -37,7 +37,7 @@ Brainstorming:
             /save 
 
             Schema:
-            {canvasId, clientId, cellData: { x, y, color }}
+            {canvasId, clientId, cellData: { x, y, color }, createdAt}
 
 
     Player simulator:

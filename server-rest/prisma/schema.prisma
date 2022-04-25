@@ -1,0 +1,33 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Canvas {
+    id        Int        @id @default(autoincrement())
+    size      Int
+    createdAt DateTime   @default(now())
+    Snapshot  Snapshot[]
+    Play      Play[]
+}
+
+model Snapshot {
+    id        Int      @id @default(autoincrement())
+    canvas    Canvas   @relation(fields: [canvasId], references: [id])
+    canvasId  Int
+    state     String
+    createdAt DateTime @default(now())
+}
+
+model Play {
+    id        Int      @id @default(autoincrement())
+    canvas    Canvas   @relation(fields: [canvasId], references: [id])
+    canvasId  Int
+    clientId  String
+    cell      String
+    createdAt DateTime @default(now())
+}

@@ -6,7 +6,7 @@
     "version": "1.0.0"
   },
   "host": "localhost:5555",
-  "basePath": "/v1/",
+  "basePath": "/v1",
   "schemes": [
     "http"
   ],

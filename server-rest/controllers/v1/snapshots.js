@@ -4,44 +4,46 @@ import SnapshotsService from '../../services/snapshots.js';
 
 let router = express.Router();
 
-router.get('/', (req, res) => {
-    const data = SnapshotsService.getAll();
+router.get('/', async (req, res) => {
+    const data = await SnapshotsService.getAll();
 
     return res.status(200).json({
-        size: data.length,
+        items: data.length,
         data,
     });
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
     const id = req.params.id;
 
     if (!id) {
         return res.status(404).json({ message: 'Not found' });
     }
 
-    const data = SnapshotsService.getById(id);
+    const data = await SnapshotsService.getById(id);
+
+    if (data === null) {
+        return res.status(404).json({ message: 'Not found' });
+    }
 
     return res.status(200).json({
         data,
     });
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
     const body = req.body;
 
     if (!body) {
         return res.status(404).json({ message: 'No payload!' });
     }
 
-    const data = SnapshotsService.create(body);
+    const data = await SnapshotsService.create(body);
 
-    return res.status(200).json({
-        data,
-    });
+    return res.status(200).json(data);
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
     const id = req.params.id;
     const body = req.body;
 
@@ -53,25 +55,29 @@ router.put('/:id', (req, res) => {
         return res.status(404).json({ message: 'No payload!' });
     }
 
-    const data = SnapshotsService.update(id, body);
+    const data = await SnapshotsService.update(id, body);
 
-    return res.status(200).json({
-        data,
-    });
+    if (data === null) {
+        return res.status(404).json({ message: 'Not found' });
+    }
+
+    return res.status(200).json(data);
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
     const id = req.params.id;
 
     if (!id) {
         return res.status(404).json({ message: 'Not found' });
     }
 
-    const data = SnapshotsService.delete(id);
+    const data = await SnapshotsService.delete(id);
 
-    return res.status(200).json({
-        data,
-    });
+    if (data === null) {
+        return res.status(404).json({ message: 'Not found' });
+    }
+
+    return res.status(200).json(data);
 });
 
 export default router;

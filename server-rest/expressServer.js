@@ -18,12 +18,19 @@ export default class ExpressServer {
     }
 
     setupMiddleware() {
-        this.app.use('/v1', v1Router);
-        this.app.use(morgan('dev', { stream: logger.stream }));
         this.app.use(cors());
+        this.app.use(morgan('dev', { stream: logger.stream }));
         this.app.use(bodyParser.json());
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
+        this.app.use('/v1', v1Router);
+
+        this.app.get('/api-doc/api.json', (req, res) => {
+            return res
+                .status(200)
+                .json(JSON.parse(fs.readFileSync('./api.json')));
+        });
+
         try {
             this.app.use(
                 '/api-doc',

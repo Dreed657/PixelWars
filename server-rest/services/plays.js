@@ -1,10 +1,21 @@
-const data = [];
+import pkg from '@prisma/client';
+const { PrismaClient } = pkg;
+
+const prisma = new PrismaClient();
 
 class PlaysService {
-    save(play) {
-        data.push(play);
+    async save(play) {
+        return await prisma.play.create({
+            data: {
+                canvasId: play.canvasId,
+                clientId: play.clientId,
+                cell: play.cell,
+            },
+        });
+    }
 
-        return play;
+    async getAll() {
+        return await prisma.play.findMany();
     }
 }
 

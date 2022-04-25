@@ -1,33 +1,54 @@
-const data = [];
+import pkg from '@prisma/client';
+const { PrismaClient } = pkg;
+
+const prisma = new PrismaClient();
 
 class CanvasService {
-    getAll() {
-        return data;
+    async getAll() {
+        return await prisma.canvas.findMany();
     }
 
-    getById(id) {
-        return data.find((c) => c.id == id);
+    async getById(id) {
+        return await prisma.canvas.findUnique({
+            where: {
+                id: Number(id),
+            },
+        });
     }
 
-    create(canvas) {
-        data.push(canvas);
+    async create(canvas) {
+        var result = await prisma.canvas.create({
+            data: {
+                size: canvas.size,
+            },
+        });
 
-        return canvas;
+        return result;
     }
 
-    update(id, canvas) {
-        let index = data.findIndex((c) => c.id == id);
-        data[index] = canvas;
+    async update(id, data) {
+        const canvas = await prisma.canvas.findUnique({
+            where: {
+                id: Number(id),
+            },
+        });
 
-        return canvas;
+        try {
+            return await prisma.canvas.update({
+                where: { id: Number(id) || undefined },
+                data: { size: data.size },
+            });
+        } catch (e) {
+            return null;
+        }
     }
 
-    delete(id) {
-        let index = data.findIndex((c) => c.id == id);
-        let canvas = data[index];
-        data.splice(index, 1);
-
-        return canvas;
+    async delete(id) {
+        return await prisma.canvas.delete({
+            where: {
+                id: Number(id),
+            },
+        });
     }
 }
 
