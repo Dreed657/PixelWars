@@ -1,6 +1,6 @@
 import express from 'express';
 
-import PlaysService from '../services/plays.js';
+import PlaysService from '../../services/plays.js';
 
 let router = express.Router();
 

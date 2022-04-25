@@ -1,11 +1,11 @@
 import express from 'express';
 
-import SnapshotsService from '../services/snapshots.js';
+import CanvasService from '../../services/canvas.js';
 
 let router = express.Router();
 
 router.get('/', (req, res) => {
-    const data = SnapshotsService.getAll();
+    const data = CanvasService.getAll();
 
     return res.status(200).json({
         size: data.length,
@@ -20,7 +20,7 @@ router.get('/:id', (req, res) => {
         return res.status(404).json({ message: 'Not found' });
     }
 
-    const data = SnapshotsService.getById(id);
+    const data = CanvasService.getById(id);
 
     return res.status(200).json({
         data,
@@ -34,7 +34,7 @@ router.post('/', (req, res) => {
         return res.status(404).json({ message: 'No payload!' });
     }
 
-    const data = SnapshotsService.create(body);
+    const data = CanvasService.create(body);
 
     return res.status(200).json({
         data,
@@ -53,7 +53,7 @@ router.put('/:id', (req, res) => {
         return res.status(404).json({ message: 'No payload!' });
     }
 
-    const data = SnapshotsService.update(id, body);
+    const data = CanvasService.update(id, body);
 
     return res.status(200).json({
         data,
@@ -67,7 +67,7 @@ router.delete('/:id', (req, res) => {
         return res.status(404).json({ message: 'Not found' });
     }
 
-    const data = SnapshotsService.delete(id);
+    const data = CanvasService.delete(id);
 
     return res.status(200).json({
         data,

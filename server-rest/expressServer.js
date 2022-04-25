@@ -3,8 +3,10 @@ import http from 'http';
 import express from 'express';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
+import swaggerUi from 'swagger-ui-express';
+import fs from 'fs';
 
-import mainRouter from './controllers/index.js';
+import v1Router from './controllers/v1/index.js';
 import logger from './logger.js';
 
 export default class ExpressServer {
@@ -16,12 +18,21 @@ export default class ExpressServer {
     }
 
     setupMiddleware() {
+        this.app.use('/v1', v1Router);
         this.app.use(morgan('dev', { stream: logger.stream }));
         this.app.use(cors());
         this.app.use(bodyParser.json());
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
-        this.app.use(mainRouter);
+        try {
+            this.app.use(
+                '/api-doc',
+                swaggerUi.serve,
+                swaggerUi.setup(JSON.parse(fs.readFileSync('./api.json')))
+            );
+        } catch (e) {
+            logger.error('Feiled to load openapi file.'.e.message);
+        }
     }
 
     launch() {
