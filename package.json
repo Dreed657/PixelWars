@@ -4,12 +4,12 @@
   "description": "In the real r/place april 1 event, app uses short pulling of reddits cdn (hot-potato). Wanted to try to make a copy at the app with WebSockets.",
   "main": "index.js",
   "scripts": {
-    "install:client": "cd ./client-user && pnpm install",
-    "install:server": "cd ./server && pnpm install",
-    "install": "npm run install:server && npm run install:client",
+    "install:client-user": "cd ./client-user && pnpm install",
+    "install:server-ws": "cd ./server-ws && pnpm install",
+    "install": "npm run install:server-ws && npm run install:client-user",
     "start:client": "cd ./client-user && npm run serve",
-    "start:server": "cd ./server && npm run start",
-    "start": "npm run start:client & npm run start:server"
+    "start:server-ws": "cd ./server-ws && npm run start",
+    "start": "npm run start:client-user & npm run start:server-ws"
   },
   "repository": {
     "type": "git",

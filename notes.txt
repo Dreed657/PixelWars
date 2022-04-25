@@ -31,7 +31,7 @@ Brainstorming:
             /delete/{id}
 
             Schema:
-            {canvasId, createdAt, canvas: []}
+            {snapshotId, canvasId, createdAt, canvas: []}
 
         plays:
             /save 
