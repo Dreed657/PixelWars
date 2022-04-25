@@ -1,37 +1,63 @@
-version: "3.7"
+version: '3.7'
 services:
-  client-user:
-    build:
-      context: ./client-user
-      dockerfile: ./Dockerfile
-    ports:
-      - "80:8080"
-    networks:
-      - war-network
-    depends_on:
-      - wsserver
+    client-user:
+        build:
+            context: ./client-user
+            dockerfile: ./Dockerfile
+        ports:
+            - '80:8080'
+        networks:
+            - war-network
+        depends_on:
+            - server-ws
 
-  client-cli:
-    build:
-      context: ./client-cli
-      dockerfile: ./Dockerfile
-    environment:
-      - "URL=ws://wsserver:9999"
-    networks:
-      - war-network
-    depends_on:
-      - wsserver
-  
-  wsserver:
-    build:
-      context: ./server
-      dockerfile: ./Dockerfile
-    environment:
-      - "SIZE=5"
-    ports:
-      - "9999:9999"
-    networks:
-      - war-network
+    # client-cli:
+    #     build:
+    #         context: ./client-cli
+    #         dockerfile: ./Dockerfile
+    #     environment:
+    #         - 'URL=ws://server-ws:9999'
+    #     networks:
+    #         - war-network
+    #     depends_on:
+    #         - server-ws
+
+    server-ws:
+        build:
+            context: ./server-ws
+            dockerfile: ./Dockerfile
+        environment:
+            - 'SIZE=5'
+        ports:
+            - '9999:9999'
+        networks:
+            - war-network
+
+    server-rest:
+        build:
+            context: ./server-rest
+            dockerfile: ./Dockerfile
+        environment:
+            - 'PORT=3000'
+            - 'DATABASE_URL=postgresql://postgres:mysecretpassword@db:5432/pixelwars?schema=pixelwars'
+        ports:
+            - '3000:3000'
+        networks:
+            - war-network
+        depends_on:
+            - db
+
+    db:
+        image: postgres
+        restart: always
+        ports:
+            - 5432:5432
+        environment:
+            POSTGRES_PASSWORD: mysecretpassword
+        volumes:
+            - ~/dev/volumes/pixelwars:/var/lib/postgresql/data
+        networks:
+            - war-network
 
 networks:
-  war-network:
+    war-network:
