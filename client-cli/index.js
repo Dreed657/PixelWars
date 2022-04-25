@@ -4,7 +4,20 @@ const serverAddress = process.env.URL ?? 'ws://localhost:9999';
 
 var client = new ws(serverAddress);
 
-var serverData = {};
+var canvasId = 1;
+
+var clientMetaData = {};
+
+client.on('open', (ws) => {
+    client.send(
+        JSON.stringify({
+            type: 'init',
+            data: {
+                canvasId,
+            },
+        })
+    );
+});
 
 client.on('message', (message) => {
     let response = JSON.parse(message.toString());
@@ -12,12 +25,17 @@ client.on('message', (message) => {
     console.log('response type: ', response.type);
 
     switch (response.type) {
-        case 'init': {
+        case 'clientInit': {
             clientInitialization(response);
             break;
         }
         case 'update': {
             updateCanvas(response);
+            break;
+        }
+        case 'badCanvasId': {
+            console.log('Wrong canvasId');
+            process.exit();
             break;
         }
         default: {
@@ -32,39 +50,38 @@ client.on('close', () => {
 });
 
 function clientInitialization(response) {
-    serverData = response.data;
-    console.log('init response: ', response);
-    client.send(
-        JSON.stringify({
-            type: 'init',
-            data: {
-                message: `Hello from ${serverData.connId}`,
-            },
-        })
-    );
+    clientMetaData = response.data;
+    console.log('init', {
+        clientMetaData,
+        canvasId,
+    });
 }
 
 function updateCanvas(response) {
     const x = response.data.updatedCell.x;
     const y = response.data.updatedCell.y;
 
-    serverData.canvas[x][y] = { x, y, color: response.data.updatedCell.color };
-    // console.log('Updated canvas: ', serverData.canvas);
+    clientMetaData.canvas[x][y] = {
+        x,
+        y,
+        color: response.data.updatedCell.color,
+    };
+    // console.log('Updated canvas: ', clientMetaData.canvas);
 }
 
 setTimeout(() => {
     setInterval(() => {
         updateRandomCell();
-    }, 100);
-}, 1000);
+    }, 1000);
+}, 2000);
 
 function updateRandomCell() {
-    if (!serverData) {
+    if (!clientMetaData) {
         return;
     }
 
     const min = 0;
-    const max = serverData.size + 1;
+    const max = clientMetaData.size + 1;
 
     // const min = 0;
     // const max = 3;
@@ -79,6 +96,8 @@ function updateRandomCell() {
         JSON.stringify({
             type: 'updateCell',
             data: {
+                canvasId,
+                clientId: clientMetaData.clientId,
                 updatedCell,
             },
         })

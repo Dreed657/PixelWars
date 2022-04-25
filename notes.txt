@@ -7,6 +7,9 @@ Brainstorming:
 
     Web Socket server:
 
+        On new client connect check if canvasId is valid 
+        Sent plays to rest
+        Sent snapshots to rest
     
     Rest:
         - CRUD canvas

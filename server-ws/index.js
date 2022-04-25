@@ -1,36 +1,27 @@
 import { WebSocketServer } from 'ws';
-import { GameService } from './services/service.js';
+import GameService from './services/service.js';
+import RestService from './services/rest.js';
 import shortid from 'shortid';
 
-const size = process.env.SIZE ?? 10;
+const size = process.env.SIZE ?? 3;
 
 const service = new GameService(size);
+const restService = new RestService();
 
 // service.draw();
 
 const wss = new WebSocketServer({ port: 9999 });
 
-wss.on('connection', function connection(ws) {
+wss.on('connection', (ws) => {
     const clientId = shortid.generate();
     ws.id = clientId;
-
-    ws.send(
-        JSON.stringify({
-            type: 'init',
-            data: {
-                canvas: service.canvas,
-                size,
-                connId: clientId,
-            },
-        })
-    );
 
     ws.on('message', (data) => {
         const response = JSON.parse(data.toString());
 
         switch (response.type) {
             case 'init': {
-                init(response.data);
+                init(ws, clientId, response.data);
                 break;
             }
             case 'updateCell': {
@@ -42,22 +33,47 @@ wss.on('connection', function connection(ws) {
             }
         }
     });
+
+    setInterval(() => {
+        restService.saveSnapshot(1, service.canvas);
+    }, 10000);
 });
 
 console.log('WS server started');
 console.log('Size: ', size);
 
-const init = (data) => {
-    console.log('New client: ', data);
+const init = (ws, clientId, data) => {
+    console.log('new client:', clientId);
+
+    restService.doesCanvasExist(data.canvasId, (result) => {
+        if (result) {
+            ws.send(
+                JSON.stringify({
+                    type: 'clientInit',
+                    data: {
+                        size,
+                        canvas: service.canvas,
+                        clientId: clientId,
+                    },
+                })
+            );
+        } else {
+            ws.send(
+                JSON.stringify({
+                    type: 'badCanvasId',
+                })
+            );
+        }
+    });
 };
 
 const updateCell = (data) => {
-    console.log('Data recieved: ', data);
     service.updateCell(
         data.updatedCell.x,
         data.updatedCell.y,
         data.updatedCell.color
     );
+    restService.savePlay(data.canvasId, data.clientId, data.updatedCell);
 
     wss.clients.forEach(function each(client) {
         client.send(
