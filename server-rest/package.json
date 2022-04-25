@@ -1,0 +1,22 @@
+{
+  "name": "server-rest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "http": "^0.0.1-security",
+    "morgan": "^1.10.0",
+    "winston": "^3.7.2"
+  }
+}
