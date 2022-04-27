@@ -28,12 +28,6 @@ class SnapshotsService {
     }
 
     async update(id, data) {
-        const snapshot = await prisma.snapshot.findUnique({
-            where: {
-                id: Number(id),
-            },
-        });
-
         try {
             return await prisma.snapshot.update({
                 where: { id: Number(id) || undefined },

@@ -72,3 +72,8 @@ div.selected {
 .color-5 {
   background-color: #f8d210;
 }
+
+.id-button {
+  padding: 10px;
+  margin: 10px;
+}

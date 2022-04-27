@@ -4,9 +4,10 @@ const serverAddress = process.env.URL ?? 'ws://localhost:9999';
 
 var client = new ws(serverAddress);
 
-var canvasId = 1;
-
-var clientMetaData = {};
+var clientId = 0;
+var size = 0;
+var canvas = [];
+var canvasId = 2;
 
 client.on('open', (ws) => {
     client.send(
@@ -26,11 +27,11 @@ client.on('message', (message) => {
 
     switch (response.type) {
         case 'clientInit': {
-            clientInitialization(response);
+            clientInitialization(response.data);
             break;
         }
         case 'update': {
-            updateCanvas(response);
+            updateCanvas(response.data);
             break;
         }
         case 'badCanvasId': {
@@ -49,42 +50,44 @@ client.on('close', () => {
     process.exit();
 });
 
-function clientInitialization(response) {
-    clientMetaData = response.data;
+function clientInitialization(data) {
+    clientId = data.clientId;
+    canvas = data.canvas;
+    size = data.size;
+
     console.log('init', {
-        clientMetaData,
+        size,
+        clientId,
         canvasId,
+        canvas,
     });
 }
 
-function updateCanvas(response) {
-    const x = response.data.updatedCell.x;
-    const y = response.data.updatedCell.y;
+function updateCanvas(data) {
+    const x = data.updatedCell.x;
+    const y = data.updatedCell.y;
+    const color = data.updatedCell.color;
 
-    clientMetaData.canvas[x][y] = {
+    canvas[x][y] = {
         x,
         y,
-        color: response.data.updatedCell.color,
+        color,
     };
-    // console.log('Updated canvas: ', clientMetaData.canvas);
 }
 
 setTimeout(() => {
     setInterval(() => {
         updateRandomCell();
-    }, 1000);
+    }, 500);
 }, 2000);
 
 function updateRandomCell() {
-    if (!clientMetaData) {
+    if (!size || !clientId) {
         return;
     }
 
     const min = 0;
-    const max = clientMetaData.size + 1;
-
-    // const min = 0;
-    // const max = 3;
+    const max = size + 1;
 
     let updatedCell = {
         x: getRandomNumber(min, max),
@@ -96,8 +99,7 @@ function updateRandomCell() {
         JSON.stringify({
             type: 'updateCell',
             data: {
-                canvasId,
-                clientId: clientMetaData.clientId,
+                clientId: clientId,
                 updatedCell,
             },
         })
@@ -107,6 +109,3 @@ function updateRandomCell() {
 function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
-
-// Register web client payload
-// {"type":"init","data":{"message":"Hello from web client"}}

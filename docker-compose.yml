@@ -11,16 +11,16 @@ services:
         depends_on:
             - server-ws
 
-    # client-cli:
-    #     build:
-    #         context: ./client-cli
-    #         dockerfile: ./Dockerfile
-    #     environment:
-    #         - 'URL=ws://server-ws:9999'
-    #     networks:
-    #         - war-network
-    #     depends_on:
-    #         - server-ws
+    client-cli:
+        build:
+            context: ./client-cli
+            dockerfile: ./Dockerfile
+        environment:
+            - 'URL=ws://server-ws:9999'
+        networks:
+            - war-network
+        depends_on:
+            - server-ws
 
     server-ws:
         build:
@@ -28,8 +28,11 @@ services:
             dockerfile: ./Dockerfile
         environment:
             - 'SIZE=5'
+            - 'REST_ADDRESS=http://server-rest:3000/v1'
         ports:
             - '9999:9999'
+        depends_on:
+            - server-rest
         networks:
             - war-network
 

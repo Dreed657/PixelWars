@@ -12,18 +12,16 @@ export default class RestService {
             .get(`${REST_ADDRESS}/canvas/${canvasId}`)
             .then((res) => {
                 if (res.status === 200) {
-                    callback(true);
+                    callback(res.data);
                     return;
                 }
-
-                callback(false);
             })
             .catch((e) => {
-                callback(false);
+                console.log(e.message);
             });
     }
 
-    async savePlay(canvasId, clientId, cell) {
+    savePlay(canvasId, clientId, cell) {
         axios
             .post(`${REST_ADDRESS}/plays`, {
                 canvasId,
@@ -40,7 +38,7 @@ export default class RestService {
             });
     }
 
-    async saveSnapshot(canvasId, state) {
+    saveSnapshot(canvasId, state) {
         axios
             .post(`${REST_ADDRESS}/snapshots`, {
                 canvasId,

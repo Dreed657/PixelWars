@@ -3,29 +3,22 @@ import GameService from './services/service.js';
 import RestService from './services/rest.js';
 import shortid from 'shortid';
 
-const size = process.env.SIZE ?? 3;
-
-const service = new GameService(size);
+const service = new GameService();
 const restService = new RestService();
-
-// service.draw();
 
 const wss = new WebSocketServer({ port: 9999 });
 
 wss.on('connection', (ws) => {
-    const clientId = shortid.generate();
-    ws.id = clientId;
-
     ws.on('message', (data) => {
         const response = JSON.parse(data.toString());
 
         switch (response.type) {
             case 'init': {
-                init(ws, clientId, response.data);
+                init(ws, response.data);
                 break;
             }
             case 'updateCell': {
-                updateCell(response.data);
+                updateCell(ws.canvasId, response.data);
                 break;
             }
             default: {
@@ -33,30 +26,35 @@ wss.on('connection', (ws) => {
             }
         }
     });
-
-    setInterval(() => {
-        restService.saveSnapshot(1, service.canvas);
-    }, 10000);
 });
 
 console.log('WS server started');
-console.log('Size: ', size);
 
-const init = (ws, clientId, data) => {
-    console.log('new client:', clientId);
-
+const init = (ws, data) => {
     restService.doesCanvasExist(data.canvasId, (result) => {
+        console.log('res', result);
+
         if (result) {
+            service.addCanvas(result.id, result.size);
+
+            ws.id = shortid.generate();
+            ws.canvasId = result.id;
+
             ws.send(
                 JSON.stringify({
                     type: 'clientInit',
                     data: {
-                        size,
-                        canvas: service.canvas,
-                        clientId: clientId,
+                        size: result.size,
+                        canvas: service.getCanvasState(result.id),
+                        clientId: ws.id,
                     },
                 })
             );
+
+            console.log('new client:', {
+                canvaId: ws.canvasId,
+                clientId: ws.id,
+            });
         } else {
             ws.send(
                 JSON.stringify({
@@ -67,24 +65,45 @@ const init = (ws, clientId, data) => {
     });
 };
 
-const updateCell = (data) => {
+const updateCell = (canvasId, clientResponse) => {
     service.updateCell(
-        data.updatedCell.x,
-        data.updatedCell.y,
-        data.updatedCell.color
+        canvasId,
+        clientResponse.updatedCell.x,
+        clientResponse.updatedCell.y,
+        clientResponse.updatedCell.color
     );
-    restService.savePlay(data.canvasId, data.clientId, data.updatedCell);
+    restService.savePlay(
+        canvasId,
+        clientResponse.clientId,
+        clientResponse.updatedCell
+    );
 
-    wss.clients.forEach(function each(client) {
-        client.send(
-            JSON.stringify({
-                type: 'update',
-                data: {
-                    message: 'refresh',
-                    updatedCell:
-                        service.canvas[data.updatedCell.x][data.updatedCell.y],
-                },
-            })
-        );
+    wss.clients.forEach((client) => {
+        if (client.canvasId === canvasId) {
+            client.send(
+                JSON.stringify({
+                    type: 'update',
+                    data: {
+                        updatedCell: service.getCanvasCellState(
+                            canvasId,
+                            clientResponse.updatedCell.x,
+                            clientResponse.updatedCell.y
+                        ),
+                    },
+                })
+            );
+        }
     });
 };
+
+setTimeout(() => {
+    setInterval(() => {
+        const active = service.getActiveCanvasCount();
+
+        if (active > 0) {
+            service.getActiveCanvas().forEach((c) => {
+                restService.saveSnapshot(c.canvasId, c.state);
+            });
+        }
+    }, 10000);
+}, 10000);
