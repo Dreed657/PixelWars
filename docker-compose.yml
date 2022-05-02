@@ -6,6 +6,8 @@ services:
             dockerfile: ./Dockerfile
         ports:
             - '80:8080'
+        environment:
+            - 'REACT_APP_BASE_REST_URL=http://192.168.0.110:3000/v1'
         networks:
             - war-network
         depends_on:
@@ -54,7 +56,7 @@ services:
         image: postgres
         restart: always
         ports:
-            - 5432:5432
+            - 8888:5432
         environment:
             POSTGRES_PASSWORD: mysecretpassword
         volumes:

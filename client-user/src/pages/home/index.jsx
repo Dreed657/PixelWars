@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-import { Card, CardContent, CardActions, Typography, Link, Box } from '@mui/material';
+import { Link } from 'react-router-dom';
 
-const BASE_REST_URL = 'http://localhost:5555/v1'
+import { Card, CardContent, CardActions, Typography, Box } from '@mui/material';
+
+const BASE_REST_URL = process.env.REACT_APP_BASE_REST_URL ?? 'http://localhost:5555/v1'
 
 const HomePage = () => {
     const [canvases, setCanvases] = useState([]);
@@ -28,7 +30,7 @@ const HomePage = () => {
                                 </Typography>
                             </CardContent>
                             <CardActions>
-                                <Link underline="none" href={`/game/${c.id}`}>Enter</Link>
+                                <Link underline="none" to={`/game/${c.id}`}>Enter</Link>
                             </CardActions>
                         </Card>
                     )

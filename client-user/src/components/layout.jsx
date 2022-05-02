@@ -1,7 +1,7 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 
-import { BottomNavigation, Link, Container } from '@mui/material';
+import { BottomNavigation, Container } from '@mui/material';
 
 const Layout = () =>  {
   return (
@@ -10,7 +10,7 @@ const Layout = () =>  {
 			<BottomNavigation
 				showLabels
 			>
-				<Link href="/">Home</Link>
+				<Link to="/">Home</Link>
 			</BottomNavigation>
 		</div>
 		<Container>
