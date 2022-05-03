@@ -4,20 +4,29 @@ const serverAddress = process.env.URL ?? 'ws://localhost:9999';
 
 var client = new ws(serverAddress);
 
+const REST_ADDRESS = process.env.REST_ADDRESS ?? 'http://localhost:5555/v1';
+
 var clientId = 0;
 var size = 0;
 var canvas = [];
 var canvasId = 2;
 
 client.on('open', (ws) => {
-    client.send(
-        JSON.stringify({
-            type: 'init',
-            data: {
-                canvasId,
-            },
-        })
-    );
+    fetch(`${REST_ADDRESS}/canvas`)
+        .then((res) => res.json())
+        .then((data) => {
+            let randomIndex = getRandomNumber(0, data.items);
+
+            canvasId = data.data[randomIndex].id;
+            client.send(
+                JSON.stringify({
+                    type: 'init',
+                    data: {
+                        canvasId,
+                    },
+                })
+            );
+        });
 });
 
 client.on('message', (message) => {
