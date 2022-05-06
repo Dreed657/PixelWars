@@ -1,4 +1,5 @@
 import ws from 'ws';
+import fetch from 'node-fetch';
 
 const serverAddress = process.env.URL ?? 'ws://localhost:9999';
 
