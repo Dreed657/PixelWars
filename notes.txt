@@ -1,3 +1,10 @@
+Tasks: 
+    Fix folder structure ./src
+    Add vagrant and box the project in vm
+    Add control panel page in client-user for interaction with docker engine that runs in the vm
+    Add admin page in clinet-user with charts of the date in db
+    Add logging prom+grafana/elastic stack deployed in docker compose
+
 Brainstorming:
     General: 
         - ?Aggragete statistics over saved plays
