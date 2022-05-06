@@ -26,6 +26,10 @@ client.on('open', (ws) => {
                     },
                 })
             );
+        })
+        .catch((e) => {
+            console.log(e.message);
+            process.exit(1);
         });
 });
 
@@ -45,7 +49,7 @@ client.on('message', (message) => {
         }
         case 'badCanvasId': {
             console.log('Wrong canvasId');
-            process.exit();
+            process.exit(1);
             break;
         }
         default: {
@@ -56,8 +60,14 @@ client.on('message', (message) => {
 
 client.on('close', () => {
     console.log('websocket closed');
-    process.exit();
+    process.exit(1);
 });
+
+setTimeout(() => {
+    setInterval(() => {
+        updateRandomCell();
+    }, 500);
+}, 2000);
 
 function clientInitialization(data) {
     clientId = data.clientId;
@@ -83,12 +93,6 @@ function updateCanvas(data) {
         color,
     };
 }
-
-setTimeout(() => {
-    setInterval(() => {
-        updateRandomCell();
-    }, 500);
-}, 2000);
 
 function updateRandomCell() {
     if (!size || !clientId) {

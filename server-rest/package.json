@@ -2,11 +2,11 @@
   "name": "server-rest",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "start:cold": "npm run migrate && node index.js",
+    "start": "node src/index.js",
+    "start:cold": "npm run migrate && node src/index.js",
     "migrate": "npx prisma migrate dev",
     "swagger-gen": "node swagger.js",
     "test": "echo \"Error: no test specified\" && exit 1"
