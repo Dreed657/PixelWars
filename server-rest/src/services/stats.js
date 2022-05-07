@@ -28,6 +28,11 @@ class StatsService {
             _count: {
                 id: true,
             },
+            orderBy: {
+                _count: {
+                    id: 'asc',
+                },
+            },
         });
 
         return data.map((p) => {
@@ -43,6 +48,11 @@ class StatsService {
             by: ['clientId'],
             _count: {
                 id: true,
+            },
+            orderBy: {
+                _count: {
+                    id: 'asc',
+                },
             },
         });
 
