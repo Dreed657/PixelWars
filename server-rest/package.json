@@ -8,14 +8,14 @@
     "start": "node src/index.js",
     "start:cold": "npm run migrate && node src/index.js",
     "migrate": "npx prisma migrate dev",
-    "swagger-gen": "node swagger.js",
+    "swagger-gen": "node src/swagger.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^3.12.0",
+    "@prisma/client": "^3.13.0",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "express": "^4.17.3",
@@ -26,6 +26,6 @@
     "winston": "^3.7.2"
   },
   "devDependencies": {
-    "prisma": "^3.12.0"
+    "prisma": "^3.13.0"
   }
 }

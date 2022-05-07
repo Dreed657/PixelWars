@@ -35,7 +35,7 @@ export default class ExpressServer {
             this.app.use(
                 '/api-doc',
                 swaggerUi.serve,
-                swaggerUi.setup(JSON.parse(fs.readFileSync('./api.json')))
+                swaggerUi.setup(JSON.parse(fs.readFileSync('./src/api.json')))
             );
         } catch (e) {
             logger.error('Feiled to load openapi file.'.e.message);
