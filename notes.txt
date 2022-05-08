@@ -19,6 +19,8 @@ Tasks:
         
         Switch to turn on/off short pulling of new data from the rest
 
+    Update client-cli to simulate multiple connections to WS
+    Monitoring
 
 Brainstorming:
     General: 

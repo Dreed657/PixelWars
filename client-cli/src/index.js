@@ -2,10 +2,9 @@ import ws from 'ws';
 import fetch from 'node-fetch';
 
 const serverAddress = process.env.URL ?? 'ws://localhost:9999';
+const REST_ADDRESS = process.env.REST_ADDRESS ?? 'http://localhost:5555/v1';
 
 var client = new ws(serverAddress);
-
-const REST_ADDRESS = process.env.REST_ADDRESS ?? 'http://localhost:5555/v1';
 
 var clientId = 0;
 var size = 0;
@@ -89,8 +88,6 @@ function updateCanvas(data) {
     const color = data.updatedCell.color;
 
     canvas[x][y] = {
-        x,
-        y,
         color,
     };
 }
