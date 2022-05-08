@@ -13,21 +13,17 @@ export const getPlayPerClient = (callback) => {
     fetch(`${BASE_REST_URL}/stats/playsPerClient`)
         .then((res) => res.json())
         .then((response) => {
-            const max = Math.max(...response.map((o) => o.total));
-
             callback({
                 datasets: [
                     {
                         label: 'Plays per client',
                         backgroundColor: 'rgba(53, 162, 235, 0.5)',
-                        data: response
-                            .filter((p) => p.total > calcPercentage(30, max))
-                            .map((p) => {
-                                return {
-                                    x: p.clientId,
-                                    y: p.total,
-                                };
-                            }),
+                        data: response.map((p) => {
+                            return {
+                                x: p.clientId,
+                                y: p.total,
+                            };
+                        }),
                     },
                 ],
             });
@@ -95,8 +91,4 @@ export const getPlaysByHour = (callback) => {
                 ],
             });
         });
-};
-
-const calcPercentage = (percent, total) => {
-    return ((percent / 100) * total).toFixed(2);
 };
