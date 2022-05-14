@@ -1,4 +1,11 @@
 version: '3.7'
+
+networks:
+    war-network:
+
+volumes:
+    prometheus_data:
+
 services:
     client-user:
         build:
@@ -19,6 +26,7 @@ services:
         environment:
             - 'URL=ws://server-ws:9999'
             - 'REST_ADDRESS=http://server-rest:3000/v1'
+            - 'CLIENTS_COUNT=0'
         networks:
             - war-network
         depends_on:
@@ -66,5 +74,70 @@ services:
         networks:
             - war-network
 
-networks:
-    war-network:
+    node-exporter:
+        image: prom/node-exporter:v1.3.1
+        container_name: node-exporter
+        restart: unless-stopped
+        volumes:
+            - /proc:/host/proc:ro
+            - /sys:/host/sys:ro
+            - /:/rootfs:ro
+        command:
+            - '--path.procfs=/host/proc'
+            - '--path.rootfs=/rootfs'
+            - '--path.sysfs=/host/sys'
+            - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+        expose:
+            - 9100
+        networks:
+            - war-network
+
+    cadvisor:
+        image: gcr.io/cadvisor/cadvisor:latest
+        container_name: cadvisor
+        ports:
+            - 8080:8080
+        volumes:
+            - /:/rootfs:ro
+            - /var/run:/var/run:rw
+            - /sys:/sys:ro
+            - /var/lib/docker/:/var/lib/docker:ro
+
+    prometheus:
+        image: prom/prometheus:v2.35.0
+        container_name: prometheus
+        restart: unless-stopped
+        volumes:
+            - ./prometheus.yml:/etc/prometheus/prometheus.yml
+            - prometheus_data:/prometheus
+        command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus'
+            - '--web.console.libraries=/etc/prometheus/console_libraries'
+            - '--web.console.templates=/etc/prometheus/consoles'
+            - '--web.enable-lifecycle'
+        expose:
+            - 9090
+        networks:
+            - war-network
+        depends_on:
+            - cadvisor
+
+    grafana:
+        image: grafana/grafana-oss:8.5.2
+        ports:
+            - 7777:3000
+        user: '104'
+        networks:
+            - war-network
+        environment:
+            - GF_SECURITY_ADMIN_PASSWORD=MYPASSWORT
+            - GF_USERS_ALLOW_SIGN_UP=false
+
+    # loki:
+    #     image: grafana/loki:2.5.0
+    #     ports:
+    #         - '3100:3100'
+    #     command: -config.file=/etc/loki/local-config.yaml
+    #     networks:
+    #         - war-network
