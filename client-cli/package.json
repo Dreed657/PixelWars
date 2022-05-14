@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "node-fetch": "^3.2.4",
+    "shortid": "^2.2.16",
     "ws": "^8.5.0"
   }
 }

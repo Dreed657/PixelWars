@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     const id = req.params.id;
 
-    if (!id) {
+    if (!id || id === NaN || id === undefined) {
         return res.status(404).json({ message: 'Not found' });
     }
 
@@ -45,7 +45,7 @@ router.put('/:id', async (req, res) => {
     const id = req.params.id;
     const body = req.body;
 
-    if (!id) {
+    if (!id || id === NaN) {
         return res.status(404).json({ message: 'Not found' });
     }
 

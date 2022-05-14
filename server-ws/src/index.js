@@ -1,10 +1,8 @@
 import { WebSocketServer } from 'ws';
-import GameService from './services/service.js';
-import RestService from './services/rest.js';
 import shortid from 'shortid';
 
-const service = new GameService();
-const restService = new RestService();
+import GameService from './services/service.js';
+import RestService from './services/rest.js';
 
 const wss = new WebSocketServer({ port: 9999 });
 
@@ -31,11 +29,11 @@ wss.on('connection', (ws) => {
 console.log('WS server started');
 
 const init = (ws, data) => {
-    restService.doesCanvasExist(data.canvasId, (result) => {
+    RestService.doesCanvasExist(data.canvasId, (result) => {
         console.log('res', result);
 
         if (result) {
-            service.addCanvas(result.id, result.size);
+            GameService.addCanvas(result.id, result.size);
 
             ws.id = shortid.generate();
             ws.canvasId = result.id;
@@ -45,8 +43,9 @@ const init = (ws, data) => {
                     type: 'clientInit',
                     data: {
                         size: result.size,
-                        canvas: service.getCanvasState(result.id),
+                        canvas: GameService.getCanvasState(result.id),
                         clientId: ws.id,
+                        ref: data.ref,
                     },
                 })
             );
@@ -66,43 +65,48 @@ const init = (ws, data) => {
 };
 
 const updateCell = (canvasId, clientResponse) => {
-    service.updateCell(
-        canvasId,
-        clientResponse.updatedCell.x,
-        clientResponse.updatedCell.y,
-        clientResponse.updatedCell.color
-    );
-    restService.savePlay(
-        canvasId,
-        clientResponse.clientId,
-        clientResponse.updatedCell
-    );
+    try {
+        GameService.updateCell(
+            canvasId,
+            clientResponse.updatedCell.x,
+            clientResponse.updatedCell.y,
+            clientResponse.updatedCell.color
+        );
+        RestService.savePlay(
+            canvasId,
+            clientResponse.clientId,
+            clientResponse.updatedCell
+        );
 
-    wss.clients.forEach((client) => {
-        if (client.canvasId === canvasId) {
-            client.send(
-                JSON.stringify({
-                    type: 'update',
-                    data: {
-                        updatedCell: service.getCanvasCellState(
-                            canvasId,
-                            clientResponse.updatedCell.x,
-                            clientResponse.updatedCell.y
-                        ),
-                    },
-                })
-            );
-        }
-    });
+        wss.clients.forEach((client) => {
+            if (client.canvasId === canvasId) {
+                client.send(
+                    JSON.stringify({
+                        type: 'update',
+                        data: {
+                            clientId: clientResponse.clientId,
+                            updatedCell: GameService.getCanvasCellState(
+                                canvasId,
+                                clientResponse.updatedCell.x,
+                                clientResponse.updatedCell.y
+                            ),
+                        },
+                    })
+                );
+            }
+        });
+    } catch (e) {
+        console.log(e.message);
+    }
 };
 
 setTimeout(() => {
     setInterval(() => {
-        const active = service.getActiveCanvasCount();
+        const active = GameService.getActiveCanvasCount();
 
         if (active > 0) {
-            service.getActiveCanvas().forEach((c) => {
-                restService.saveSnapshot(c.canvasId, c.state);
+            GameService.getActiveCanvas().forEach((c) => {
+                RestService.saveSnapshot(c.canvasId, c.state);
             });
         }
     }, 10000);

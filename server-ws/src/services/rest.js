@@ -1,12 +1,7 @@
-// getById(canvasId)
-// save(play)
-// save(snapshot)
-
 import axios from 'axios';
 
 const REST_ADDRESS = process.env.REST_ADDRESS ?? 'http://localhost:5555/v1';
-
-export default class RestService {
+class RestService {
     doesCanvasExist(canvasId, callback) {
         axios
             .get(`${REST_ADDRESS}/canvas/${canvasId}`)
@@ -52,3 +47,5 @@ export default class RestService {
             });
     }
 }
+
+export default new RestService();

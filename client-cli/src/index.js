@@ -1,56 +1,95 @@
 import ws from 'ws';
-import fetch from 'node-fetch';
+import shortid from 'shortid';
 
-const serverAddress = process.env.URL ?? 'ws://localhost:9999';
+import { GameClient } from './gameClient.js';
+import { getRandomNumber, getAllValidCanvases } from './utils.js';
+
+const SERVER_ADDRESS = process.env.URL ?? 'ws://localhost:9999';
 const REST_ADDRESS = process.env.REST_ADDRESS ?? 'http://localhost:5555/v1';
+const CLIENTS_COUNT = process.env.CLIENTS_COUNT ?? 5;
 
-var client = new ws(serverAddress);
+const activePlayers = [];
+const validCanvases = await getAllValidCanvases(REST_ADDRESS);
 
-var clientId = 0;
-var size = 0;
-var canvas = [];
-var canvasId = 2;
+var client = new ws(SERVER_ADDRESS);
 
-client.on('open', (ws) => {
-    fetch(`${REST_ADDRESS}/canvas`)
-        .then((res) => res.json())
-        .then((data) => {
-            let randomIndex = getRandomNumber(0, data.items);
+setTimeout(() => {
+    for (let i = 0; i < CLIENTS_COUNT; i++) {
+        const index = getRandomNumber(0, validCanvases.length);
+        const canvasId = validCanvases[index];
+        const ref = shortid.generate();
 
-            canvasId = data.data[randomIndex].id;
+        const player = new GameClient(ref, canvasId);
+
+        client.send(
+            JSON.stringify({
+                type: 'init',
+                data: {
+                    ref: player.ref,
+                    canvasId: player.canvasId,
+                },
+            })
+        );
+
+        activePlayers.push(player);
+    }
+
+    setInterval(() => {
+        if (activePlayers.filter((c) => !c.isSetuped).length > 0) {
+            console.log('Not all player clients are ready!');
+            return;
+        }
+
+        for (const player of activePlayers) {
             client.send(
                 JSON.stringify({
-                    type: 'init',
+                    type: 'updateCell',
                     data: {
-                        canvasId,
+                        clientId: player.clientId,
+                        updatedCell: {
+                            x: getRandomNumber(0, player.size + 1),
+                            y: getRandomNumber(0, player.size + 1),
+                            color: getRandomNumber(0, 6),
+                        },
                     },
                 })
             );
-        })
-        .catch((e) => {
-            console.log(e.message);
-            process.exit(1);
-        });
-});
+        }
+    }, 500);
+}, 1000);
 
 client.on('message', (message) => {
     let response = JSON.parse(message.toString());
-
     console.log('response type: ', response.type);
 
     switch (response.type) {
         case 'clientInit': {
-            clientInitialization(response.data);
+            const data = response.data;
+            const clientId = data.clientId;
+            const canvas = data.canvas;
+            const size = data.size;
+            const ref = data.ref;
+
+            const player = activePlayers.find((c) => c.ref === ref);
+            player.setup(size, canvas, clientId);
+
             break;
         }
         case 'update': {
-            updateCanvas(response.data);
+            const data = response.data;
+            const clientId = response.data.clientId;
+            const x = data.updatedCell.x;
+            const y = data.updatedCell.y;
+            const color = data.updatedCell.color;
+
+            const player = activePlayers.find((c) => c.clientId === clientId);
+            player.updateCell(x, y, color);
+
             break;
         }
         case 'badCanvasId': {
-            console.log('Wrong canvasId');
+            console.log('Invalid canvasId');
             process.exit(1);
-            break;
         }
         default: {
             console.log(`unknown type ${response.type}`);
@@ -62,61 +101,3 @@ client.on('close', () => {
     console.log('websocket closed');
     process.exit(1);
 });
-
-setTimeout(() => {
-    setInterval(() => {
-        updateRandomCell();
-    }, 500);
-}, 2000);
-
-function clientInitialization(data) {
-    clientId = data.clientId;
-    canvas = data.canvas;
-    size = data.size;
-
-    console.log('init', {
-        size,
-        clientId,
-        canvasId,
-        canvas,
-    });
-}
-
-function updateCanvas(data) {
-    const x = data.updatedCell.x;
-    const y = data.updatedCell.y;
-    const color = data.updatedCell.color;
-
-    canvas[x][y] = {
-        color,
-    };
-}
-
-function updateRandomCell() {
-    if (!size || !clientId) {
-        return;
-    }
-
-    const min = 0;
-    const max = size + 1;
-
-    let updatedCell = {
-        x: getRandomNumber(min, max),
-        y: getRandomNumber(min, max),
-        color: getRandomNumber(0, 6),
-    };
-
-    client.send(
-        JSON.stringify({
-            type: 'updateCell',
-            data: {
-                clientId: clientId,
-                updatedCell,
-            },
-        })
-    );
-}
-
-function getRandomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
-}

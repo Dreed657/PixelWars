@@ -73,4 +73,4 @@ class GameService {
     }
 }
 
-export default GameService;
+export default new GameService();
